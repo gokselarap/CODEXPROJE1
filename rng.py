@@ -76,15 +76,62 @@ def main() -> None:
     import argparse
 
     parser = argparse.ArgumentParser(description="Generate pseudo-random numbers using an LCG.")
-    parser.add_argument("count", type=int, help="How many numbers to generate")
-    parser.add_argument("minimum", type=int, help="Inclusive lower bound")
-    parser.add_argument("maximum", type=int, help="Inclusive upper bound")
+    parser.add_argument("count", type=int, nargs="?", help="How many numbers to generate")
+    parser.add_argument("minimum", type=int, nargs="?", help="Inclusive lower bound")
+    parser.add_argument("maximum", type=int, nargs="?", help="Inclusive upper bound")
     parser.add_argument("--seed", type=int, default=None, help="Optional seed for reproducibility")
+    parser.add_argument(
+        "--gui",
+        action="store_true",
+        help="Launch a simple GUI for generating numbers between 0 and a provided upper bound.",
+    )
     args = parser.parse_args()
+
+    if args.gui:
+        launch_gui(seed=args.seed)
+        return
+
+    if args.count is None or args.minimum is None or args.maximum is None:
+        parser.error("count, minimum, and maximum are required unless --gui is set")
 
     generator = LCGRandom(seed=args.seed)
     for _ in range(args.count):
         print(generator.randint(args.minimum, args.maximum))
+
+
+def launch_gui(*, seed: Optional[int] = None) -> None:
+    """Launch a minimal Tkinter GUI to generate numbers from 0 up to a given bound."""
+    import tkinter as tk
+    from tkinter import messagebox
+
+    generator = LCGRandom(seed=seed)
+
+    root = tk.Tk()
+    root.title("Rastgele Sayı Üreteci")
+
+    tk.Label(root, text="Üst sınırı girin:").pack(padx=10, pady=(10, 0))
+    upper_entry = tk.Entry(root)
+    upper_entry.pack(padx=10, pady=5)
+
+    result_var = tk.StringVar(value="Henüz sayı üretilmedi")
+    tk.Label(root, textvariable=result_var).pack(padx=10, pady=5)
+
+    def generate() -> None:
+        raw_value = upper_entry.get()
+        try:
+            upper_bound = int(raw_value)
+        except ValueError:
+            messagebox.showerror("Hata", "Lütfen geçerli bir sayı girin.")
+            return
+        if upper_bound < 0:
+            messagebox.showerror("Hata", "Üst sınır negatif olamaz.")
+            return
+        value = generator.randint(0, upper_bound)
+        result_var.set(f"Üretilen sayı: {value}")
+
+    tk.Button(root, text="Üret", command=generate).pack(padx=10, pady=(5, 10))
+
+    root.mainloop()
 
 
 if __name__ == "__main__":

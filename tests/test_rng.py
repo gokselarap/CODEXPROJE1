@@ -30,6 +30,13 @@ class TestLCGRandom(unittest.TestCase):
             self.assertGreaterEqual(value, 0)
             self.assertLess(value, 10)
 
+    def test_zero_to_upper_bound(self) -> None:
+        gen = LCGRandom(seed=7)
+        for upper in (0, 1, 5):
+            value = gen.randint(0, upper)
+            self.assertGreaterEqual(value, 0)
+            self.assertLessEqual(value, upper)
+
 
 if __name__ == "__main__":
     unittest.main()
