@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rastgele Sayı Üreteci</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, #f0f4ff, #dbeafe 40%, #fef3c7);
+        padding: 24px;
+      }
+
+      .card {
+        background: white;
+        border-radius: 20px;
+        padding: 32px;
+        width: min(520px, 100%);
+        box-shadow: 0 20px 60px rgba(15, 23, 42, 0.2);
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+        color: #0f172a;
+      }
+
+      p {
+        margin: 0 0 24px;
+        color: #475569;
+      }
+
+      .inputs {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+        gap: 16px;
+        margin-bottom: 20px;
+      }
+
+      label {
+        display: block;
+        font-size: 14px;
+        color: #334155;
+        margin-bottom: 6px;
+      }
+
+      input {
+        width: 100%;
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #cbd5f5;
+        font-size: 16px;
+      }
+
+      button {
+        width: 100%;
+        padding: 12px 16px;
+        border-radius: 12px;
+        border: none;
+        background: #2563eb;
+        color: white;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      button:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 10px 20px rgba(37, 99, 235, 0.3);
+      }
+
+      .result {
+        margin-top: 24px;
+        background: #f8fafc;
+        border-radius: 14px;
+        padding: 18px;
+        text-align: center;
+        font-size: 40px;
+        font-weight: 700;
+        color: #0f172a;
+        letter-spacing: 1px;
+      }
+
+      .meta {
+        margin-top: 12px;
+        text-align: center;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .error {
+        color: #b91c1c;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <h1>Rastgele Sayı Üreteci</h1>
+      <p>Aralık ve adım değerini belirleyin, tek tıkla rastgele sayı üretin.</p>
+
+      <section class="inputs">
+        <div>
+          <label for="minValue">Minimum değer</label>
+          <input id="minValue" type="number" value="1" />
+        </div>
+        <div>
+          <label for="maxValue">Maksimum değer</label>
+          <input id="maxValue" type="number" value="100" />
+        </div>
+        <div>
+          <label for="stepValue">Adım</label>
+          <input id="stepValue" type="number" value="1" min="1" />
+        </div>
+      </section>
+
+      <button id="generateButton">Sayı Üret</button>
+
+      <div class="result" id="result">--</div>
+      <div class="meta" id="meta">Aralık: 1 - 100</div>
+    </main>
+
+    <script>
+      const minInput = document.getElementById("minValue");
+      const maxInput = document.getElementById("maxValue");
+      const stepInput = document.getElementById("stepValue");
+      const result = document.getElementById("result");
+      const meta = document.getElementById("meta");
+      const button = document.getElementById("generateButton");
+
+      const updateMeta = (message, isError = false) => {
+        meta.textContent = message;
+        meta.classList.toggle("error", isError);
+      };
+
+      const generate = () => {
+        const min = Number(minInput.value);
+        const max = Number(maxInput.value);
+        const step = Number(stepInput.value) || 1;
+
+        if (Number.isNaN(min) || Number.isNaN(max) || Number.isNaN(step)) {
+          updateMeta("Lütfen geçerli sayılar girin.", true);
+          result.textContent = "--";
+          return;
+        }
+
+        if (step <= 0) {
+          updateMeta("Adım değeri 0'dan büyük olmalı.", true);
+          result.textContent = "--";
+          return;
+        }
+
+        if (min > max) {
+          updateMeta("Minimum değer maksimumdan küçük olmalı.", true);
+          result.textContent = "--";
+          return;
+        }
+
+        const range = Math.floor((max - min) / step);
+        const randomIndex = Math.floor(Math.random() * (range + 1));
+        const value = min + randomIndex * step;
+
+        result.textContent = value;
+        updateMeta(`Aralık: ${min} - ${max} | Adım: ${step}`);
+      };
+
+      button.addEventListener("click", generate);
+      [minInput, maxInput, stepInput].forEach((input) =>
+        input.addEventListener("change", () => updateMeta("Değerler güncellendi."))
+      );
+
+      generate();
+    </script>
+  </body>
+</html>
